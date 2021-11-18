@@ -1,0 +1,66 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.7'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'com.google.protobuf' version '0.8.17'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'io.grpc:grpc-netty-shaded:1.42.1'
+	implementation 'io.grpc:grpc-protobuf:1.42.1'
+	implementation 'io.grpc:grpc-stub:1.42.1'
+	implementation 'net.devh:grpc-client-spring-boot-starter:2.11.0.RELEASE'
+
+	implementation "io.opentelemetry:opentelemetry-exporter-otlp:1.9.0"
+	implementation platform("io.opentelemetry:opentelemetry-bom:1.9.0")
+	implementation "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:1.9.0-alpha"
+	implementation "io.opentelemetry:opentelemetry-api"
+
+	compileOnly 'jakarta.annotation:jakarta.annotation-api:1.3.5'
+	compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
+
+	implementation 'io.opentelemetry:opentelemetry-exporter-jaeger:1.9.0'
+
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:3.17.2"
+	}
+
+	generatedFilesBaseDir = "src/main/java/generated"
+
+	plugins {
+		grpc {
+			artifact = 'io.grpc:protoc-gen-grpc-java:1.42.1'
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
+}
+sourceSets {
+	main {
+		java {
+			srcDirs += file("src/generated/main/java")
+			srcDirs += file("src/generated/main/grpc")
+		}
+	}
+}
